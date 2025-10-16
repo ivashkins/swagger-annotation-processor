@@ -1,6 +1,11 @@
-package ru.vtb.nik.sap2u.classes;
+package ru.vtb.nik.sap2u.handler;
 
 import com.intellij.psi.PsiField;
+import ru.vtb.nik.sap2u.handler.types.BigDecimalHandler;
+import ru.vtb.nik.sap2u.handler.types.CommonHandler;
+import ru.vtb.nik.sap2u.handler.types.IntegerHandler;
+import ru.vtb.nik.sap2u.handler.types.LongHandler;
+import ru.vtb.nik.sap2u.handler.types.StringHandler;
 
 import java.math.BigDecimal;
 import java.util.HashMap;

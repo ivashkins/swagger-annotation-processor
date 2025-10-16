@@ -1,30 +1,43 @@
 package ru.vtb.nik.sap2u;
-import com.intellij.psi.*;
+
+import com.intellij.psi.PsiArrayType;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassType;
+import com.intellij.psi.PsiType;
+import com.intellij.psi.PsiWildcardType;
 
 public class PsiTypeUtils {
 
+
     public static String getCanonicalType(PsiType type) {
-        if (type == null) return null;
+        switch (type) {
+            case null -> {
+                return null;
+            }
 
-        // Массивы
-        if (type instanceof PsiArrayType arrayType) {
-            PsiType component = arrayType.getComponentType();
-            return getCanonicalType(component) + "[]";
-        }
+            // Массивы
+            case PsiArrayType arrayType -> {
+                PsiType component = arrayType.getComponentType();
+                return getCanonicalType(component) + "[]";
+            }
 
-        // Generic (например List<Long>)
-        if (type instanceof PsiClassType classType) {
-            PsiClass resolved = classType.resolve();
-            if (resolved != null) {
-                PsiType[] params = classType.getParameters();
-                if (params.length > 0) {
-                    // Берём первый параметр
-                    return getCanonicalType(params[0]);
+
+            // Generic (например List<Long>)
+            case PsiClassType classType -> {
+                PsiClass resolved = classType.resolve();
+                if (resolved != null) {
+                    PsiType[] params = classType.getParameters();
+                    if (params.length > 0) {
+                        // Берём первый параметр
+                        return getCanonicalType(params[0]);
+                    }
+
+                    // Примитивные обёртки или обычные классы
+                    String canonical = type.getCanonicalText();
+                    return primitiveToWrapper(canonical);
                 }
-
-                // Примитивные обёртки или обычные классы
-                String canonical = type.getCanonicalText();
-                return primitiveToWrapper(canonical);
+            }
+            default -> {
             }
         }
 

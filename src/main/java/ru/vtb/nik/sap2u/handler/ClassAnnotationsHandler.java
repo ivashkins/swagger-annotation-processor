@@ -1,4 +1,4 @@
-package ru.vtb.nik.sap2u.classes;
+package ru.vtb.nik.sap2u.handler;
 
 import com.intellij.psi.PsiField;
 

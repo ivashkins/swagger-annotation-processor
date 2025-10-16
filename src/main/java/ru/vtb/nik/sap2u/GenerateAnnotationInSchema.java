@@ -8,17 +8,17 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiType;
 import org.jetbrains.annotations.NotNull;
-import ru.vtb.nik.sap2u.classes.TypeBasedDelegator;
+import ru.vtb.nik.sap2u.handler.ControllerAnnotationHandler;
+import ru.vtb.nik.sap2u.handler.DtoAnnotationHandler;
 
-import java.util.List;
+import static ru.vtb.nik.sap2u.AnnotationUtils.controllersClasses;
 
 public class GenerateAnnotationInSchema extends AnAction {
-    private final TypeBasedDelegator delegator = new TypeBasedDelegator();
+    private final ControllerAnnotationHandler controllerHandler = new ControllerAnnotationHandler();
+    private final DtoAnnotationHandler dtoHandler = new DtoAnnotationHandler();
 
 
     @Override
@@ -41,13 +41,12 @@ public class GenerateAnnotationInSchema extends AnAction {
         WriteCommandAction.runWriteCommandAction(project, () -> { //1263348
 
             for (PsiClass psiClass : ((PsiJavaFile) file).getClasses()) {
-
-                for (PsiField field : psiClass.getFields()) {
-                    var isList = PsiType.getTypeByName(List.class.getCanonicalName(), project, field.getResolveScope()).isAssignableFrom(field.getType());
-                    var canonicalType = PsiTypeUtils.getCanonicalType(field.getType());
-
-                    delegator.handle(canonicalType, field, isList);
+                if (controllersClasses.stream().anyMatch(psiClass::hasAnnotation)) {
+                    controllerHandler.processClass(psiClass, project);
+                } else {
+                    dtoHandler.processClass(psiClass, project);
                 }
+
             }
         });
     }
