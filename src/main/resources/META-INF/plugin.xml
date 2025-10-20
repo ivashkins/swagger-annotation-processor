@@ -2,21 +2,17 @@
 <idea-plugin>
 
     <id>ru.vtb.nik.Sap2u</id>
-
-
-    <name>SwaggerAnnotationPlugin2You</name>
-
-
+    <name>SwaggerAnnotationPlug2You</name>
     <vendor email="rpniy1@gmail.com" url="https://github.com/ivashkins/swagger-annotation-processor">Ivashkins</vendor>
 
+    <description>Plugin for generate swagger annotations like ApiResponse, Tag ,Summary ,Min ,Max ,maxLength etc. Work with classes who have annotation @RestController/Controller
+    and methods with @GetMapping, @PostMapping, etc annotations. And Class/Record only with fields (dto)
+    </description>
 
-    <description>Плагин для аннотации полей в дто, что бы успешно проходилась проверка на валидацию в swagger</description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
-
     <extensions defaultExtensionNs="com.intellij">
-
     </extensions>
 
     <actions>
