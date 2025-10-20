@@ -20,6 +20,12 @@ import static ru.vtb.nik.sap2u.AnnotationUtils.MIN_ANNOTATION;
 import static ru.vtb.nik.sap2u.AnnotationUtils.mappingAnnotations;
 import static ru.vtb.nik.sap2u.PsiTypeUtils.getCanonicalType;
 
+/**
+ * Handler for work with Controller classes, he searched methods with annotation Get, Put, etc mapping
+ * and add annotation before method and in params structure
+ */
+
+
 public class ControllerAnnotationHandler {
     public void processClass(PsiClass psiClass, Project project) {
         PsiElementFactory factory = JavaPsiFacade.getElementFactory(project);

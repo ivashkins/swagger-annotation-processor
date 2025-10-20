@@ -1,6 +1,6 @@
 package ru.vtb.nik.sap2u.handler;
 
-import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiNamedElement;
 import ru.vtb.nik.sap2u.handler.types.BigDecimalHandler;
 import ru.vtb.nik.sap2u.handler.types.CommonHandler;
 import ru.vtb.nik.sap2u.handler.types.IntegerHandler;
@@ -11,6 +11,9 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class for delegate work to handler who processed this class type
+ */
 public class TypeBasedDelegator  {
     private final Map<String, ClassAnnotationsHandler> handlers = new HashMap<>();
     private final ClassAnnotationsHandler defaultHandler = new CommonHandler();
@@ -23,7 +26,7 @@ public class TypeBasedDelegator  {
         handlers.put(String.class.getCanonicalName(), new StringHandler());
     }
 
-    public void handle(String type, PsiField field, boolean isList) {
+    public void handle(String type, PsiNamedElement field, boolean isList) {
         handlers.getOrDefault(type, defaultHandler).fillAnnotations(field, isList);
     }
 

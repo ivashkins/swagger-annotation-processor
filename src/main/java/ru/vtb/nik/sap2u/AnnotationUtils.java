@@ -4,14 +4,18 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiCompiledElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementFactory;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiImportList;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiModifierList;
+import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiRecordComponent;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import com.intellij.psi.util.PsiTreeUtil;
 
 import java.util.List;
 
@@ -44,46 +48,56 @@ public class AnnotationUtils {
     public static final String INT_MAX_VALUE = "@Max(Integer.MAX_VALUE)";
 
     /**
-     * Добавляет аннотацию к полю, если её ещё нет
+     * Class who add annotation, and imports in classes/records
      *
-     * @param field          PsiField, куда добавляем аннотацию
-     * @param fullAnName           Полное имя класса аннотации (для проверки и импорта)
-     * @param annotationText Текст аннотации (например "@Min(0)" или сложная с вложенной)
+     * @param element        PsiElement, element where will be added annotation
+     * @param fullAnName     Full annotation import
+     * @param annotationText Annotation text, with @ and params in text format
      */
-    public static void addFieldAnnotations(PsiField field, String fullAnName, String annotationText) {
-        PsiModifierList modifierList = field.getModifierList();
+    public static void addFieldAnnotations(PsiNamedElement element, String fullAnName, String annotationText) {
+
+        if (!(element instanceof PsiField || element instanceof PsiRecordComponent)) return;
+
+        Project project = element.getProject();
+        PsiModifierList modifierList;
+
+        if (element instanceof PsiField field) {
+            modifierList = field.getModifierList();
+        } else {
+            modifierList = ((PsiRecordComponent) element).getModifierList();
+        }
+
         if (modifierList == null) return;
 
-        // Проверяем наличие
+
+        if (element instanceof PsiCompiledElement) return;
         if (modifierList.findAnnotation(fullAnName) != null) return;
 
-        Project project = field.getProject();
         PsiElementFactory factory = JavaPsiFacade.getInstance(project).getElementFactory();
+        PsiAnnotation newAnnotation = factory.createAnnotationFromText(annotationText, element);
 
-        // Создаём аннотацию
-        PsiAnnotation newAnnotation = factory.createAnnotationFromText(annotationText, field);
+        PsiElement firstModifier = modifierList.getFirstChild();
+        if (firstModifier != null) {
+            modifierList.addBefore(newAnnotation, firstModifier);
+        } else {
+            modifierList.add(newAnnotation);
+        }
+        CodeStyleManager.getInstance(project).reformat(modifierList);
 
-        // Вставляем и форматируем в WriteCommandAction
 
-            PsiElement firstModifier = modifierList.getFirstChild();
-            if (firstModifier != null) {
-                modifierList.addBefore(newAnnotation, firstModifier);
-            } else {
-                modifierList.add(newAnnotation);
-            }
-            CodeStyleManager.getInstance(project).reformat(modifierList);
-
-        // Добавляем импорт
-        PsiJavaFile javaFile = (PsiJavaFile) field.getContainingFile();
-        PsiImportList importList = javaFile.getImportList();
-        if (importList != null) {
+        PsiJavaFile javaFile = PsiTreeUtil.getParentOfType(element, PsiJavaFile.class);
+        if (javaFile != null) {
+            PsiImportList importList = javaFile.getImportList();
+            if (importList != null) {
                 PsiClass annotationClass = JavaPsiFacade.getInstance(project)
-                        .findClass(fullAnName, field.getResolveScope());
+                        .findClass(fullAnName, element.getResolveScope());
                 if (annotationClass != null) {
-                    var styleManager = JavaCodeStyleManager.getInstance(project);
+                    JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(project);
                     styleManager.addImport(javaFile, annotationClass);
                 }
+            }
         }
     }
+
 }
 
