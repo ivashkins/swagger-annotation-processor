@@ -13,7 +13,7 @@ public class StringHandler implements ClassAnnotationsHandler {
     public void fillAnnotations(PsiNamedElement field, boolean isList) {
             if (isList) {
                 addFieldAnnotations(field, ARRAY_SCHEMA_ANNOTATION,
-                        "@ArraySchema(schema = @Schema(description = \"" + field.getName() + "\", maxLength = 255), maxItems = Integer.MAX_VALUE))");
+                        "@ArraySchema(schema = @Schema(description = \"" + field.getName() + "\", maxLength = 255), maxItems = Integer.MAX_VALUE)");
                 return;
             }
             addFieldAnnotations(field, SCHEMA_ANNOTATION, "@Schema(description = \"" + field.getName() + "\", maxLength = 255)");
